@@ -12,15 +12,9 @@ import Animated, {
 } from 'react-native-reanimated'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
-import { UserInterface } from '@/presentation/interfaces/user.interface'
+import { SwipeableCardProps } from '@/presentation/interfaces'
 
-interface SwipeableCardProps {
-    card: UserInterface
-    onSwipeLeft: (cardId: number) => void
-    onSwipeRight: (cardId: number) => void
-    index?: number
-    totalCards?: number
-}
+
 
 const { width: screenWidth } = Dimensions.get('window')
 const SWIPE_THRESHOLD = screenWidth / 4
@@ -95,8 +89,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             ),
         }
     })
-
-    console.log("image", card.urlImg)
 
     return (
         <PanGestureHandler onGestureEvent={gestureHandler}>

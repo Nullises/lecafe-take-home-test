@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { View, Text, Button } from 'react-native'
 import SwipeableCard from './SwipeableCard'
-import { UserInterface } from '@/presentation/interfaces/user.interface'
+import { UserInterface } from '@/presentation/interfaces'
 
 const LecafeSwipe = ({ initialCards }: {
   initialCards: UserInterface[]
