@@ -1,0 +1,15 @@
+export interface UserInterface {
+  id: number;
+  name: string;
+  surname: string;
+  age: number;
+  city: string;
+  isNear: boolean;
+  nearKm: number;
+  country: string;
+  interests: string[];
+  selfConsider: boolean;
+  selfConsiderTag: string;
+  match: boolean;
+  urlImg: string;
+}
