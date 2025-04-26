@@ -14,6 +14,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445024/modelo2_mui7xh.jpg?_s=public-apps",
+    lists: ["Friendship", "Relationship"],
   },
   {
     id: 2,
@@ -30,6 +31,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo4_woi1kw.jpg?_s=public-apps",
+    lists: ["Dates", "Relationship"],
   },
   {
     id: 3,
@@ -46,6 +48,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo1_fyc5zk.jpg?_s=public-apps",
+    lists: ["Relationship", "Friendship"],
   },
   {
     id: 4,
@@ -62,6 +65,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo3_njirb4.jpg?_s=public-apps",
+    lists: ["Friendship", "Dates"],
   },
   {
     id: 5,
@@ -78,6 +82,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo5_eoa8ws.jpg?_s=public-apps",
+    lists: ["Dates", "Relationship", "Friendship"],
   },
   {
     id: 6,
@@ -94,6 +99,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo6_g97y3l.jpg?_s=public-apps",
+    lists: ["Relationship", "Friendship", "Dates"],
   },
 ];
 

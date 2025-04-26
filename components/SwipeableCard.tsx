@@ -102,7 +102,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     'rounded-xl',
                     'shadow-lg',
                     'border',
-                    'border-gray-200',
+                    'border-transparent',
                     'overflow-hidden'
                 )}
             >

@@ -1,3 +1,5 @@
+import { UserLists } from "../enum/userLists.enum";
+
 export interface UserInterface {
   id: number;
   name: string;
@@ -12,4 +14,5 @@ export interface UserInterface {
   selfConsiderTag: string;
   match: boolean;
   urlImg: string;
+  lists: UserLists[];
 }

@@ -23,6 +23,12 @@ module.exports = {
         buttonlightpink: "##D0BFBF",
         buttonpink: "#FEB5DB",
         drawerpink: "#FFB1C7",
+        blue: {
+          50: "#7086E3",
+        },
+        purple: {
+          50: "#9072E5",
+        },
       },
       fontSize: {
         xxl: [

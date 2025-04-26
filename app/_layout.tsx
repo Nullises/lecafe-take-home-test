@@ -3,7 +3,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from "expo-font";
 
 import React from "react"
-import { Slot } from "expo-router"
+import DrawerLayout from "./(drawer)/layout"
 
 
 
@@ -18,8 +18,7 @@ const RootLayout = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Slot />      
-
+      <DrawerLayout />
     </GestureHandlerRootView>
   )
 }
