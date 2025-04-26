@@ -119,8 +119,8 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 />
 
                 <View className="absolute bottom-0 left-0 right-0 p-4">
-                    <Text className="text-white text-2xl font-bold">{card.name} {card.surname}, {card.age}</Text>
-                    <Text className="text-white text-xl">{card.isNear && card.nearKm && card.nearKm > 0 && `${card.nearKm} km,`} {card.city && `${card.city}`} {card.country && `, ${card.country}`}</Text>
+                    <Text className="font-quicksand-bold text-textwhite text-md">{card.name} {card.surname}, {card.age}</Text>
+                    <Text className="font-mavenpro-regular text-textwhite text-sm">{card.isNear && card.nearKm && card.nearKm > 0 && `${card.nearKm} km,`} {card.city && `${card.city}`} {card.country && `, ${card.country}`}</Text>
                 </View>
             </Animated.View>
         </PanGestureHandler>

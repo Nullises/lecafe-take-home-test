@@ -1,21 +1,24 @@
 import "../globals.css"
-import { View, Text, SafeAreaView, ActivityIndicator } from "react-native"
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useFonts } from "expo-font";
 
 import React from "react"
-import useUsers from "@/presentation/hooks/useUsers"
-import LecafeSwipe from "@/components/LecafeSwipe"
+import { Slot } from "expo-router"
 
 
 
 const RootLayout = () => {
-  const { users } = useUsers()
+
+  useFonts({
+    "Quiksand-Bold": require("@/assets/fonts/Quicksand/static/Quicksand-Bold.ttf"),
+    "MavenPro-Regular": require("@/assets/fonts/Maven_Pro/static/MavenPro-Regular.ttf"),
+    "MavenPro-Bold": require("@/assets/fonts/Maven_Pro/static/MavenPro-Bold.ttf"),
+  })
+
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <LecafeSwipe initialCards={users} />
-      </View>
+      <Slot />      
 
     </GestureHandlerRootView>
   )

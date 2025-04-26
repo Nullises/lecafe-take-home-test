@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react'
-import { View, Text, Button } from 'react-native'
+import { View, Text, Button, Pressable } from 'react-native'
 import SwipeableCard from './SwipeableCard'
 import { UserInterface } from '@/presentation/interfaces'
 
@@ -61,9 +61,11 @@ const LecafeSwipe = ({ initialCards }: {
         })
       ) : (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-xl text-gray-600">No hay más opciones.</Text>
+            <Text className=" font-mavenpro-bold  text-md text-textblack">No hay más opciones.</Text>
 
-          <Button title="Reiniciar" onPress={() => { setCards(initialCards); setCurrentIndex(0) }} />
+            <Pressable onPress={() => { setCards(initialCards); setCurrentIndex(0) }}>
+              <Text className=" font-quicksand-bold text-sm text-textblack">REINICIAR</Text>
+            </Pressable>
         </View>
       )}
     </View>
