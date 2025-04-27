@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from "react-native"
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native"
 import React from "react"
 import {
     DrawerContentComponentProps,
@@ -7,10 +7,20 @@ import {
 } from "@react-navigation/drawer"
 import profilePhoto from "@/assets/images/profile.png"
 import Logout from "@/assets/icons/Logout"
+import { onToggleDrawer } from "@/presentation/utils/onToggleDrawer"
+import { useNavigation } from 'expo-router'
+import XMark from "@/assets/icons/XMark"
 
 const CustomDrawer = (props: DrawerContentComponentProps) => {
+
+    const navigation = useNavigation()
     return (
         <DrawerContentScrollView {...props}>
+            <View className="flex items-start justify-start">
+                <Pressable onPress={() => onToggleDrawer(navigation)}>
+                    <XMark />
+                </Pressable>
+            </View>
             <View className="p-5 mb-5 items-center">
                 <Image
                     source={profilePhoto}

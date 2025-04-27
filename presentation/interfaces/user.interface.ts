@@ -16,3 +16,9 @@ export interface UserInterface {
   urlImg: string;
   lists: UserLists[];
 }
+
+export interface SplitListsAccumulator {
+  friendshipList: UserInterface[];
+  relationshipList: UserInterface[];
+  datesList: UserInterface[];
+}

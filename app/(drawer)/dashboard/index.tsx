@@ -1,15 +1,19 @@
-import { View, Text } from 'react-native'
-import React, { useState } from 'react'
+import { View } from 'react-native'
+import React from 'react'
 import LecafeSwipe from '@/components/LecafeSwipe'
 import useUsers from "@/presentation/hooks/useUsers"
-import { UserInterface } from '@/presentation/interfaces'
+import { SplitListsAccumulator, UserInterface } from '@/presentation/interfaces'
 import { UserLists } from '@/presentation/enum'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import CustomHeader from '@/components/CustomHeader'
+import useOpenDrawer from '@/presentation/hooks/useOpenDrawer'
 
 
 
 const DashboardScreen = () => {
 
     const { users } = useUsers()
+    const { isDrawerOpen } = useOpenDrawer();
 
     const { friendshipList, relationshipList, datesList } = users.reduce((acc, person: UserInterface) => {
 
@@ -29,14 +33,26 @@ const DashboardScreen = () => {
         friendshipList: [],
         relationshipList: [],
         datesList: []
-    });
+    } as SplitListsAccumulator)
+
 
 
     return (
 
-        <View className="flex-1 items-center justify-center bg-drawerpink">
-            <LecafeSwipe initialCards={users} />
-        </View>
+        <SafeAreaView className='h-screen bg-drawerpink'>
+            {
+                !isDrawerOpen && (
+                    <CustomHeader />
+                )
+            }
+            <View className="flex-1 justify-center">
+
+                <LecafeSwipe friendshipList={friendshipList} relationshipList={relationshipList} datesList={datesList} />
+            </View>
+        </SafeAreaView>
+
+
+
     )
 }
 
