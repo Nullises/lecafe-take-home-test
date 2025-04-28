@@ -7,10 +7,7 @@ export interface SwipeableCardProps {
   onSuperLike: (cardId: number) => void;
   index?: number;
   totalCards?: number;
-  superLikeSelected?: {
-    selected: boolean;
-    selectedId: number;
-  };
+  optionSelected: string;
   selectedList: string;
   handleSelectList: (selectedList: string) => void;
 }

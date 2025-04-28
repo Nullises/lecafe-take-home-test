@@ -10,4 +10,6 @@ export const Colors = {
   pinkGradient: "#FF6B86",
   orangeGradient: "#FFB03A",
   strongpinkGradient: "#FF58A4",
+  grayOverlay: "#938E90",
+  pinkOverlay: "#FFB1C7",
 };

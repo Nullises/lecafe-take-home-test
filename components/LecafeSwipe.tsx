@@ -15,13 +15,7 @@ const LecafeSwipe = ({
   const [cards, setCards] = useState<UserInterface[]>(friendshipList)
 
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [superLikeSelected, setSuperLikeSelected] = useState<{
-    selected: boolean,
-    selectedId: number
-  }>({
-    selected: false,
-    selectedId: 0
-  });
+  const [optionSelected, setOptionSelected] = useState<string>("")
 
   useEffect(() => {
 
@@ -49,12 +43,7 @@ const LecafeSwipe = ({
   const handleSwipe = useCallback(
     (swipedCardId: number, direction: 'left' | 'right' | 'superlike') => {
 
-      if (direction == 'superlike') {
-        setSuperLikeSelected({
-          selected: true,
-          selectedId: swipedCardId
-        })
-      }
+      setOptionSelected(direction)
 
       console.log(`Card ID ${swipedCardId} swiped ${direction}`)
       setCurrentIndex((prevIndex) => prevIndex + 1)
@@ -96,7 +85,7 @@ const LecafeSwipe = ({
                 onSwipeRight={handleSwipeRight}
                 index={index}
                 totalCards={cardsToRender.length}
-                superLikeSelected={superLikeSelected}
+                optionSelected={optionSelected}
                 handleSelectList={handleSelectList}
                 selectedList={selectedList}
               />

@@ -11,6 +11,7 @@ import Animated, {
     interpolate,
     withTiming,
     Extrapolate,
+    interpolateColor,
 } from 'react-native-reanimated'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
@@ -27,7 +28,12 @@ import Relationship from '@/assets/icons/Relationship'
 import SuperLike from '@/assets/icons/SuperLike'
 import BigXMark from '@/assets/icons/BigXMark'
 import BigCheck from '@/assets/icons/BigCheck'
+import { Colors } from '@/constants/Colors'
+const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
+const NOPE_OVERLAY_COLOR = Colors.grayOverlay 
 
+// Opacidad máxima deseada para el overlay
+const MAX_OVERLAY_OPACITY = 0.4;
 
 
 const { width: screenWidth } = Dimensions.get('window')
@@ -40,7 +46,8 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     onSuperLike,
     index = 0,
     selectedList,
-    handleSelectList
+    handleSelectList,
+    optionSelected
 }) => {
     const translateX = useSharedValue(0)
     const translateY = useSharedValue(0)
@@ -51,6 +58,9 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
     const nopeLikeIndicatorScale = useSharedValue(0.8)
     const superLikeIndicatorScale = useSharedValue(0.8) 
+    const overlayOpacity = useSharedValue(0)
+    const overlayColor = useSharedValue(NOPE_OVERLAY_COLOR);
+
 
     const handleSwipeComplete = useCallback(
         (direction: 'left' | 'right' | 'superlike') => {
@@ -76,8 +86,10 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
             if (direction === 'left') {
                 likeIndicatorOpacity.value = 0
+                overlayColor.value = NOPE_OVERLAY_COLOR;
             } else {
                 nopeIndicatorOpacity.value = 0
+                overlayColor.value = LIKE_OVERLAY_COLOR;
             }
             superLikeIndicatorOpacity.value = 0
             superLikeIndicatorScale.value = 0.8
@@ -87,6 +99,12 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 if (isFinished) {
 
                     indicatorOpacity.value = withTiming(0, { duration: 300 })
+
+                    overlayOpacity.value = withTiming(MAX_OVERLAY_OPACITY, { duration: 300 }, (isOverlayFinished) => {
+                        if (isOverlayFinished) {
+                            overlayOpacity.value = withTiming(0, { duration: 300 })
+                        }
+                    });
 
 
                     translateX.value = withSpring(finalPositionX, { duration: 200 }, (isSwipeFinished) => {
@@ -110,24 +128,35 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             translateX.value = withSpring(translateX.value) 
 
         },
-        [translateX, translateY, nopeIndicatorOpacity, likeIndicatorOpacity, nopeLikeIndicatorScale, superLikeIndicatorOpacity, superLikeIndicatorScale, handleSwipeComplete, screenWidth]
+        [translateX, translateY, nopeIndicatorOpacity, likeIndicatorOpacity, nopeLikeIndicatorScale, superLikeIndicatorOpacity, superLikeIndicatorScale, overlayOpacity, overlayColor, handleSwipeComplete, screenWidth]
     )
 
 
     const triggerSuperLikeAnimation = useCallback(() => {
         nopeIndicatorOpacity.value = 0
         likeIndicatorOpacity.value = 0
+        nopeLikeIndicatorScale.value = 0.8
+
+        overlayColor.value = LIKE_OVERLAY_COLOR;
 
 
         superLikeIndicatorOpacity.value = withTiming(1, { duration: 300 }, (isFinished) => {
             if (isFinished) {
                 superLikeIndicatorOpacity.value = withTiming(0, { duration: 300 })
                 superLikeIndicatorScale.value = withTiming(0.8, { duration: 300 })
+
+                overlayOpacity.value = withTiming(MAX_OVERLAY_OPACITY, { duration: 300 }, (isOverlayFinished) => {
+                    if (isOverlayFinished) {
+                        overlayOpacity.value = withTiming(0, { duration: 300 })
+                    }
+                });
+
                 runOnJS(handleSwipeComplete)('superlike')
             }
         })
 
         superLikeIndicatorScale.value = withTiming(1.1, { duration: 300 })
+
 
 
         translateY.value = withTiming(-20, { duration: 100 }, () => {
@@ -136,7 +165,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         translateX.value = withSpring(0)
 
 
-    }, [superLikeIndicatorOpacity, superLikeIndicatorScale, nopeIndicatorOpacity, likeIndicatorOpacity, translateY, translateX, handleSwipeComplete])
+    }, [superLikeIndicatorOpacity, superLikeIndicatorScale, nopeIndicatorOpacity, likeIndicatorOpacity, nopeLikeIndicatorScale, overlayOpacity, overlayColor, translateY, translateX, handleSwipeComplete])
 
 
 
@@ -168,6 +197,19 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
             superLikeIndicatorOpacity.value = 0
             superLikeIndicatorScale.value = 0.8
+
+            overlayOpacity.value = interpolate(
+                Math.abs(translateX.value), // Usar valor absoluto para que la opacidad suba a ambos lados
+                [0, SWIPE_THRESHOLD], // Opacidad 0 al centro, MAX_OVERLAY_OPACITY al umbral
+                [0, MAX_OVERLAY_OPACITY],
+                Extrapolate.CLAMP
+            )
+            // Interpolamos el color basado en la posición horizontal
+            overlayColor.value = interpolateColor(
+                translateX.value,
+                [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD], // Entradas: umbral izq, centro, umbral der
+                [NOPE_OVERLAY_COLOR, NOPE_OVERLAY_COLOR, LIKE_OVERLAY_COLOR] // Salidas: Gris, Gris (en el centro), Rosa
+            );
         },
         onEnd: (event) => {
 
@@ -177,6 +219,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 })
                 nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
                 likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                overlayOpacity.value = withTiming(0, { duration: 100 });
 
 
             } else if (event.translationX < -SWIPE_THRESHOLD) {
@@ -185,6 +228,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 })
                 nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
                 likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                overlayOpacity.value = withTiming(0, { duration: 100 });
 
             } else {
                 translateX.value = withSpring(0)
@@ -194,7 +238,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 superLikeIndicatorOpacity.value = withTiming(0, { duration: 100 })
                 superLikeIndicatorScale.value = withTiming(0.8, { duration: 100 })
                 nopeLikeIndicatorScale.value = withTiming(0.8, { duration: 100 })
-
+                overlayOpacity.value = withTiming(0, { duration: 100 });
             }
         },
     })
@@ -224,6 +268,16 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             ),
         }
     })
+
+    const overlayStyle = useAnimatedStyle(() => {
+        return {
+            backgroundColor: overlayColor.value, // Color animado
+            opacity: overlayOpacity.value, // Opacidad animada
+            // El posicionamiento se maneja con clases Nativewind
+            position: 'absolute', // Necesario para que las clases top/left/etc funcionen correctamente
+            top: 0, left: 0, right: 0, bottom: 0, // Cubre toda la tarjeta
+        }
+    });
 
     const nopeIndicatorStyle = useAnimatedStyle(() => {
         return {
@@ -461,9 +515,13 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 />
 
                 <Animated.View
+                    style={[overlayStyle]}
+                    className="absolute top-0 left-0 right-0 bottom-0" // Repetido para claridad, style tiene prioridad
+                />
+
+                <Animated.View
                     style={[nopeIndicatorStyle]}
                     className={clsx(
-                        'absolute', 'top-12', 'left-10',
                         'rounded-xl', 'p-4',
 
                     )}
@@ -473,7 +531,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 <Animated.View
                     style={[likeIndicatorStyle]}
                     className={clsx(
-                        'absolute', 'top-12', 'right-10',
                         'rounded-xl', 'p-4',
                     )}
                 >
