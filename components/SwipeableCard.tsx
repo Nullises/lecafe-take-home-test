@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState } from 'react'
-import { View, Text, Dimensions } from 'react-native'
+import { View, Text, Dimensions, Pressable } from 'react-native'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import Animated, {
     useSharedValue,
@@ -31,6 +31,7 @@ import BigCheck from '@/assets/icons/BigCheck'
 import { Colors } from '@/constants/Colors'
 import Match from './Match'
 import { Redirect, router, useNavigation } from 'expo-router'
+import Interests from '@/assets/icons/Interests'
 const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
 const NOPE_OVERLAY_COLOR = Colors.grayOverlay
 const MAX_OVERLAY_OPACITY = 0.4;
@@ -426,7 +427,13 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
 
                 <View className="absolute bottom-0 left-0 right-0 p-4">
-                    <Text className="font-quicksand-bold text-textwhite text-md">{card.name} {card.surname}, {card.age}</Text>
+                    <View className='flex flex-row justify-between'>
+                        <Text className="font-quicksand-bold text-textwhite text-md">{card.name} {card.surname}, {card.age}</Text>
+                        <Pressable className='bg-buttonstrongpink active:opacity-80 rounded-full w-[32px] h-[32px] flex justify-center items-center'>
+                            <Interests />
+                        </Pressable>
+                    </View>
+
                     <Text className="font-mavenpro-regular text-textwhite text-sm mb-8">{card.isNear && card.nearKm && card.nearKm > 0 && `${card.nearKm} km,`} {card.city && `${card.city}`} {card.country && `, ${card.country}`}</Text>
                     <View className='flex-1 flex-row items-center justify-center gap-4'>
 
