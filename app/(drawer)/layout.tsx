@@ -158,6 +158,13 @@ const DrawerLayout = () => {
                     title: "",
                 }}
             />
+            <Drawer.Screen
+                name="(drawer)/dashboard/[id]"
+                options={{
+                    drawerLabel: "",
+                    title: "",
+                }}
+            />
         </Drawer>
     )
 }

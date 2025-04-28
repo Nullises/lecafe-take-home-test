@@ -37,7 +37,6 @@ module.exports = {
           "77px",
           {
             fontWeight: "700",
-            lineHeight: "20px",
           },
         ],
         xl: [
@@ -51,7 +50,6 @@ module.exports = {
           "30px",
           {
             fontWeight: "700",
-            lineHeight: "25px",
           },
         ],
         md: [

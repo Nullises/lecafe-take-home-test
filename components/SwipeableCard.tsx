@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { View, Text, Dimensions } from 'react-native'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import Animated, {
@@ -29,6 +29,8 @@ import SuperLike from '@/assets/icons/SuperLike'
 import BigXMark from '@/assets/icons/BigXMark'
 import BigCheck from '@/assets/icons/BigCheck'
 import { Colors } from '@/constants/Colors'
+import Match from './Match'
+import { Redirect, router, useNavigation } from 'expo-router'
 const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
 const NOPE_OVERLAY_COLOR = Colors.grayOverlay
 const MAX_OVERLAY_OPACITY = 0.4;
@@ -44,9 +46,11 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     onSuperLike,
     index = 0,
     selectedList,
-    handleSelectList,
-    optionSelected
+    handleSelectList
 }) => {
+
+    const navigate = useNavigation();
+
     const translateX = useSharedValue(0)
     const translateY = useSharedValue(0)
 
@@ -60,6 +64,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     const overlayColor = useSharedValue(NOPE_OVERLAY_COLOR);
 
 
+
     const handleSwipeComplete = useCallback(
         (direction: 'left' | 'right' | 'superlike') => {
             if (direction === 'left') {
@@ -68,6 +73,13 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 onSwipeRight(card.id)
             } else if (direction === 'superlike') {
                 onSuperLike(card.id)
+                if (card.match) {
+                    console.log("match")
+                    router.push({
+                        pathname: '/(drawer)/dashboard/[id]',
+                        params: { id: card.id, name: selectedList }
+                    })
+                }
             }
 
         },
@@ -163,6 +175,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             translateY.value = withSpring(0)
         })
         translateX.value = withSpring(0)
+
 
 
     }, [superLikeIndicatorOpacity, superLikeIndicatorScale, nopeIndicatorOpacity, likeIndicatorOpacity, nopeLikeIndicatorScale, overlayOpacity, overlayColor, translateY, translateX, handleSwipeComplete])
@@ -326,7 +339,9 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         }
     })
 
+
     return (
+
         <PanGestureHandler onGestureEvent={gestureHandler}>
             <Animated.View
                 style={[animatedStyle]}
@@ -428,6 +443,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             </Animated.View>
         </PanGestureHandler>
     )
+
 }
 
 export default SwipeableCard 

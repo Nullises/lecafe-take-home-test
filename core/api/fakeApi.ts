@@ -11,7 +11,7 @@ const fakeApiJSON = [
     interests: ["Viajar", "Leer", "Amistad", "Pasarlo bien", "Salir de fiesta"],
     selfConsider: false,
     selfConsiderTag: "",
-    match: true,
+    match: false,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445024/modelo2_mui7xh.jpg?_s=public-apps",
     lists: ["Friendship"],
@@ -45,7 +45,7 @@ const fakeApiJSON = [
     interests: ["Viajar", "Leer", "Salir de fiesta"],
     selfConsider: true,
     selfConsiderTag: "Femme",
-    match: true,
+    match: false,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo1_fyc5zk.jpg?_s=public-apps",
     lists: ["Relationship", "Friendship"],
@@ -79,7 +79,7 @@ const fakeApiJSON = [
     interests: ["Viajar", "Leer", "Amistad"],
     selfConsider: false,
     selfConsiderTag: "",
-    match: true,
+    match: false,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo5_eoa8ws.jpg?_s=public-apps",
     lists: ["Dates", "Relationship"],
