@@ -1,6 +1,6 @@
 
 import React, { useCallback } from 'react'
-import { View, Text, Dimensions } from 'react-native' // Importamos Text
+import { View, Text, Dimensions } from 'react-native'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import Animated, {
     useSharedValue,
@@ -9,21 +9,24 @@ import Animated, {
     withSpring,
     runOnJS,
     interpolate,
+    withTiming,
+    Extrapolate,
 } from 'react-native-reanimated'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { SwipeableCardProps } from '@/presentation/interfaces'
 import CustomButton from './CustomButton'
 import Dislike from '@/assets/icons/Dislike'
-import Like from '@/assets/icons/Like'
 import Check from '@/assets/icons/Check'
-import LikeWhite from '@/assets/icons/LikeWhite'
 import CustomLikeButton from './CustomLikeButton'
 import CustomSetListButton from './CustomSetListButton'
 import Friendship from '@/assets/icons/Friendship'
 import { UserLists } from '@/presentation'
 import Dates from '@/assets/icons/Dates'
 import Relationship from '@/assets/icons/Relationship'
+import SuperLike from '@/assets/icons/SuperLike'
+import BigXMark from '@/assets/icons/BigXMark'
+import BigCheck from '@/assets/icons/BigCheck'
 
 
 
@@ -36,39 +39,105 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     onSwipeRight,
     onSuperLike,
     index = 0,
-    totalCards = 1,
-    superLikeSelected,
     selectedList,
     handleSelectList
 }) => {
     const translateX = useSharedValue(0)
     const translateY = useSharedValue(0)
 
+    const nopeIndicatorOpacity = useSharedValue(0)
+    const likeIndicatorOpacity = useSharedValue(0)
+    const superLikeIndicatorOpacity = useSharedValue(0)
+
+    const nopeLikeIndicatorScale = useSharedValue(0.8)
+    const superLikeIndicatorScale = useSharedValue(0.8) 
+
     const handleSwipeComplete = useCallback(
-        (direction: 'left' | 'right') => {
+        (direction: 'left' | 'right' | 'superlike') => {
             if (direction === 'left') {
                 onSwipeLeft(card.id)
             } else if (direction === 'right') {
                 onSwipeRight(card.id)
-            } 
+            } else if (direction === 'superlike') {
+                onSuperLike(card.id)
+            }
+
         },
-        [card.id, onSwipeLeft, onSwipeRight]
+        [card.id, onSwipeLeft, onSwipeRight, onSuperLike]
     )
 
-    const triggerSwipeAnimation = useCallback(
+    const triggerIndicatorAndSwipeAnimation = useCallback(
         (direction: 'left' | 'right') => {
             const finalPositionX = direction === 'left' ? -screenWidth * 1.5 : screenWidth * 1.5
 
-            translateX.value = withSpring(finalPositionX, { duration: 200 }, (isFinished) => {
+
+            const indicatorOpacity = direction === 'left' ? nopeIndicatorOpacity : likeIndicatorOpacity
+
+
+            if (direction === 'left') {
+                likeIndicatorOpacity.value = 0
+            } else {
+                nopeIndicatorOpacity.value = 0
+            }
+            superLikeIndicatorOpacity.value = 0
+            superLikeIndicatorScale.value = 0.8
+
+
+            indicatorOpacity.value = withTiming(1, { duration: 300 }, (isFinished) => {
                 if (isFinished) {
-                    runOnJS(handleSwipeComplete)(direction)
+
+                    indicatorOpacity.value = withTiming(0, { duration: 300 })
+
+
+                    translateX.value = withSpring(finalPositionX, { duration: 200 }, (isSwipeFinished) => {
+                        if (isSwipeFinished) {
+
+                            runOnJS(handleSwipeComplete)(direction)
+                        }
+                    })
                 }
             })
 
+            nopeLikeIndicatorScale.value = withTiming(1.1, { duration: 300 }, (isFinished) => {
+                if (isFinished) {
+                    nopeLikeIndicatorScale.value = withTiming(0.8, { duration: 300 })
+                }
+            })
+
+
+
             translateY.value = withSpring(0)
+            translateX.value = withSpring(translateX.value) 
+
         },
-        [translateX, translateY, handleSwipeComplete, screenWidth]
-    );
+        [translateX, translateY, nopeIndicatorOpacity, likeIndicatorOpacity, nopeLikeIndicatorScale, superLikeIndicatorOpacity, superLikeIndicatorScale, handleSwipeComplete, screenWidth]
+    )
+
+
+    const triggerSuperLikeAnimation = useCallback(() => {
+        nopeIndicatorOpacity.value = 0
+        likeIndicatorOpacity.value = 0
+
+
+        superLikeIndicatorOpacity.value = withTiming(1, { duration: 300 }, (isFinished) => {
+            if (isFinished) {
+                superLikeIndicatorOpacity.value = withTiming(0, { duration: 300 })
+                superLikeIndicatorScale.value = withTiming(0.8, { duration: 300 })
+                runOnJS(handleSwipeComplete)('superlike')
+            }
+        })
+
+        superLikeIndicatorScale.value = withTiming(1.1, { duration: 300 })
+
+
+        translateY.value = withTiming(-20, { duration: 100 }, () => {
+            translateY.value = withSpring(0)
+        })
+        translateX.value = withSpring(0)
+
+
+    }, [superLikeIndicatorOpacity, superLikeIndicatorScale, nopeIndicatorOpacity, likeIndicatorOpacity, translateY, translateX, handleSwipeComplete])
+
 
 
     const gestureHandler = useAnimatedGestureHandler<
@@ -76,21 +145,56 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         { startX: number; startY: number }
     >({
         onActive: (event) => {
+
             translateX.value = event.translationX
             translateY.value = event.translationY
+
+            nopeIndicatorOpacity.value = interpolate(
+                translateX.value,
+                [-screenWidth / 2, -SWIPE_THRESHOLD / 4, 0],
+                [1, 0.5, 0],
+                Extrapolate.CLAMP
+            )
+            nopeLikeIndicatorScale.value = 0.8
+
+            likeIndicatorOpacity.value = interpolate(
+                translateX.value,
+                [0, SWIPE_THRESHOLD / 4, screenWidth / 2],
+                [0, 0.5, 1],
+                Extrapolate.CLAMP
+            )
+            nopeLikeIndicatorScale.value = 0.8
+
+
+            superLikeIndicatorOpacity.value = 0
+            superLikeIndicatorScale.value = 0.8
         },
         onEnd: (event) => {
+
             if (event.translationX > SWIPE_THRESHOLD) {
-                translateX.value = withSpring(screenWidth * 1.5, { duration: 200 }, () => {
-                    runOnJS(triggerSwipeAnimation)('right')
+                translateX.value = withSpring(screenWidth * 1.5, { duration: 200 }, (isFinished) => {
+                    if (isFinished) { runOnJS(handleSwipeComplete)('right') }
                 })
+                nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+
+
             } else if (event.translationX < -SWIPE_THRESHOLD) {
-                translateX.value = withSpring(-screenWidth * 1.5, { duration: 200 }, () => {
-                    runOnJS(triggerSwipeAnimation)('left')
+                translateX.value = withSpring(-screenWidth * 1.5, { duration: 200 }, (isFinished) => {
+                    if (isFinished) { runOnJS(handleSwipeComplete)('left') }
                 })
+                nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+
             } else {
                 translateX.value = withSpring(0)
                 translateY.value = withSpring(0)
+                nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                superLikeIndicatorOpacity.value = withTiming(0, { duration: 100 })
+                superLikeIndicatorScale.value = withTiming(0.8, { duration: 100 })
+                nopeLikeIndicatorScale.value = withTiming(0.8, { duration: 100 })
+
             }
         },
     })
@@ -121,6 +225,216 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         }
     })
 
+    const nopeIndicatorStyle = useAnimatedStyle(() => {
+        return {
+            opacity: nopeIndicatorOpacity.value,
+            transform: [
+                { scale: nopeLikeIndicatorScale.value },
+                { rotate: '-15deg' },
+            ],
+
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginLeft: -90,
+            marginTop: -40,
+        }
+    })
+
+
+    const likeIndicatorStyle = useAnimatedStyle(() => {
+        return {
+            opacity: likeIndicatorOpacity.value,
+            transform: [
+                { scale: nopeLikeIndicatorScale.value },
+                { rotate: '15deg' }
+            ],
+
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginLeft: -90,
+            marginTop: -40,
+        }
+    })
+
+
+    const superLikeIndicatorStyle = useAnimatedStyle(() => {
+        return {
+            opacity: superLikeIndicatorOpacity.value,
+            transform: [
+                { scale: superLikeIndicatorScale.value },
+            ],
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginLeft: -90,
+            marginTop: -40,
+        }
+    })
+    //     (direction: 'left' | 'right') => {
+    //         const finalPositionX = direction === 'left' ? -screenWidth * 1.5 : screenWidth * 1.5
+
+    //         if (direction === 'left') {
+    //             nopeOpacity.value = withTiming(1, { duration: 100 }) // Mostrar BigXMark rápidamente
+    //             // Asegurarse de que LIKE y SUPERLIKE no estén visibles
+    //             likeOpacity.value = 0
+    //             superLikeOpacity.value = 0
+    //         } else { // direction === 'right'
+    //             likeOpacity.value = withTiming(1, { duration: 100 }) // Mostrar BigCheck rápidamente
+    //             // Asegurarse de que NOPE y SUPERLIKE no estén visibles
+    //             nopeOpacity.value = 0
+    //             superLikeOpacity.value = 0
+    //         }
+
+    //         // 2. Animar la tarjeta fuera de la pantalla
+    //         translateX.value = withSpring(finalPositionX, { duration: 200 }, (isFinished) => {
+    //             if (isFinished) {
+    //                 // 3. Una vez que la tarjeta está fuera, notificar al padre
+    //                 runOnJS(handleSwipeComplete)(direction)
+    //                 // 4. Opcional: Resetear opacidades *después* de que el padre haya manejado el swipe
+    //                 // Esto es útil si la tarjeta no se desmonta inmediatamente
+    //                 // runOnJS(() => { nopeOpacity.value = 0; likeOpacity.value = 0; })();
+    //             }
+
+    //         })
+
+    //         translateY.value = withSpring(0)
+    //         superLikeOpacity.value = 0
+    //         superLikeScale.value = 0.8;
+    //     },
+    //     [translateX, translateY, nopeOpacity, likeOpacity, handleSwipeComplete, screenWidth, superLikeOpacity, superLikeScale]
+    // );
+
+    // const triggerSuperLikeAnimation = useCallback(() => {
+    //     superLikeOpacity.value = withTiming(1, { duration: 300 }, () => {
+    //         superLikeOpacity.value = withTiming(0, { duration: 300 })
+    //         superLikeScale.value = withTiming(0.8, { duration: 300 })
+
+    //         runOnJS(handleSwipeComplete)('superlike')
+    //     })
+    //     superLikeScale.value = withTiming(1, { duration: 300 })
+
+
+    //     nopeOpacity.value = 0
+    //     likeOpacity.value = 0
+
+    //     translateY.value = withTiming(-20, { duration: 100 }, () => {
+    //         translateY.value = withSpring(0)
+    //     })
+
+    // }, [superLikeOpacity, superLikeScale, nopeOpacity, likeOpacity, translateY, handleSwipeComplete]);
+
+
+    // const gestureHandler = useAnimatedGestureHandler<
+    //     PanGestureHandlerGestureEvent,
+    //     { startX: number; startY: number }
+    // >({
+    //     onActive: (event) => {
+    //         translateX.value = event.translationX
+    //         translateY.value = event.translationY
+
+    //         nopeOpacity.value = interpolate(
+    //             translateX.value,
+    //             [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
+    //             [1, 0.5, 0],
+    //             Extrapolate.CLAMP
+    //         )
+    //         likeOpacity.value = interpolate(
+    //             translateX.value,
+    //             [0, SWIPE_THRESHOLD / 2, SWIPE_THRESHOLD],
+    //             [0, 0.5, 1],
+    //             Extrapolate.CLAMP
+    //         )
+
+
+    //         superLikeOpacity.value = 0
+    //         superLikeScale.value = 0.8;
+
+    //     },
+    //     onEnd: (event) => {
+    //         if (event.translationX > SWIPE_THRESHOLD) {
+    //             translateX.value = withSpring(screenWidth * 1.5, { duration: 200 }, () => {
+    //                 runOnJS(triggerSwipeAnimation)('right')
+    //             })
+    //         } else if (event.translationX < -SWIPE_THRESHOLD) {
+    //             translateX.value = withSpring(-screenWidth * 1.5, { duration: 200 }, () => {
+    //                 runOnJS(triggerSwipeAnimation)('left')
+    //             })
+    //         } else {
+    //             translateX.value = withSpring(0)
+    //             translateY.value = withSpring(0)
+    //             nopeOpacity.value = withTiming(0, { duration: 100 })
+    //             likeOpacity.value = withTiming(0, { duration: 100 });
+    //         }
+    //     },
+    // })
+
+    // const animatedStyle = useAnimatedStyle(() => {
+    //     const rotateZ = interpolate(
+    //         translateX.value,
+    //         [-screenWidth / 2, 0, screenWidth / 2],
+    //         [-15, 0, 15],
+    //         'clamp'
+    //     )
+
+    //     const scale = interpolate(index, [0, 1, 2], [1, 0.95, 0.9], 'clamp')
+    //     const translateYStack = interpolate(index, [0, 1, 2], [0, 10, 20], 'clamp')
+
+    //     return {
+    //         transform: [
+    //             { translateX: translateX.value },
+    //             { translateY: translateY.value + translateYStack },
+    //             { rotateZ: `${rotateZ}deg` },
+    //         ],
+    //         opacity: interpolate(
+    //             translateX.value,
+    //             [-screenWidth / 2, 0, screenWidth / 2],
+    //             [0.7, 1, 0.7],
+    //             'clamp'
+    //         ),
+    //     }
+    // })
+
+    // const nopeIndicatorStyle = useAnimatedStyle(() => {
+    //     return {
+    //         position: 'absolute',
+    //         top: '50%',
+    //         left: '50%',
+    //         marginLeft: -90,
+    //         marginTop: -40,
+    //         opacity: nopeOpacity.value,
+    //         transform: [{ rotate: '-15deg' }],
+    //     }
+    // })
+
+    // const likeIndicatorStyle = useAnimatedStyle(() => {
+    //     return {
+    //         position: 'absolute',
+    //         top: '50%',
+    //         left: '50%',
+    //         marginLeft: -90,
+    //         marginTop: -40,
+    //         opacity: likeOpacity.value,
+    //         transform: [{ rotate: '15deg' }],
+    //     }
+    // })
+
+    // const superLikeIndicatorStyle = useAnimatedStyle(() => {
+    //     return {
+    //         opacity: superLikeOpacity.value,
+    //         transform: [
+    //             { scale: superLikeScale.value },
+    //             { translateY: -100 },
+    //         ],
+    //         position: 'absolute',
+    //         top: '50%',
+    //         left: '50%',
+    //         marginLeft: -90,
+    //         marginTop: -40,
+    //     }
+    // });
+
     return (
         <PanGestureHandler onGestureEvent={gestureHandler}>
             <Animated.View
@@ -140,11 +454,40 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     }}
                     style={{
                         width: 318,
-                        height: 675
+                        height: 675,
                     }}
                     className="w-full h-full absolute top-0 left-0"
                     resizeMode="cover"
                 />
+
+                <Animated.View
+                    style={[nopeIndicatorStyle]}
+                    className={clsx(
+                        'absolute', 'top-12', 'left-10',
+                        'rounded-xl', 'p-4',
+
+                    )}
+                >
+                    <BigXMark />
+                </Animated.View>
+                <Animated.View
+                    style={[likeIndicatorStyle]}
+                    className={clsx(
+                        'absolute', 'top-12', 'right-10',
+                        'rounded-xl', 'p-4',
+                    )}
+                >
+                    <BigCheck />
+                </Animated.View>
+
+                <Animated.View
+                    style={[superLikeIndicatorStyle]}
+                    className={clsx(
+                        'rounded-xl', 'p-4',
+                    )}
+                >
+                    <SuperLike />
+                </Animated.View>
 
                 <View className="absolute top-0 left-0 right-0 p-4">
                     <View className='flex-1 flex-row items-center justify-center gap-2'>
@@ -178,11 +521,11 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     <Text className="font-mavenpro-regular text-textwhite text-sm mb-8">{card.isNear && card.nearKm && card.nearKm > 0 && `${card.nearKm} km,`} {card.city && `${card.city}`} {card.country && `, ${card.country}`}</Text>
                     <View className='flex-1 flex-row items-center justify-center gap-4'>
 
-                        <CustomButton onPress={() => triggerSwipeAnimation('left')} btnColor={'bg-buttonlightpink'} btnColorActive={'active:bg-buttonstrongpink'}>
+                        <CustomButton onPress={() => triggerIndicatorAndSwipeAnimation("left")} btnColor={'bg-buttonlightpink'} btnColorActive={'active:bg-buttonstrongpink'}>
                             <Dislike />
                         </CustomButton>
-                        <CustomLikeButton onPress={() => onSuperLike(card.id)} />
-                        <CustomButton onPress={() => triggerSwipeAnimation('right')} btnColor={'bg-buttonpink'} btnColorActive={'active:bg-buttonstrongpink'}>
+                        <CustomLikeButton onPress={triggerSuperLikeAnimation} />
+                        <CustomButton onPress={() => triggerIndicatorAndSwipeAnimation("right")} btnColor={'bg-buttonpink'} btnColorActive={'active:bg-buttonstrongpink'}>
                             <Check />
                         </CustomButton>
                     </View>
