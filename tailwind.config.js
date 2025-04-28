@@ -20,7 +20,9 @@ module.exports = {
         textgray: "#727272",
         textpink: "#FF58A4",
         buttonfucshia: "#FF6B86",
-        buttonlightpink: "##D0BFBF",
+        buttonlightpink: "#D0BFBF",
+        buttonstrongpink: "#FF58A4",
+        buttonwhite: "#FFFFFF",
         buttonpink: "#FEB5DB",
         drawerpink: "#FFB1C7",
         blue: {

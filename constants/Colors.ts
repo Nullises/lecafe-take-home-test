@@ -1,4 +1,13 @@
 export const Colors = {
   pink: "#FFB1C7",
   white: "#FFFFFF",
+  buttonfucshia: "#FF6B86",
+  buttonlightpink: "#D0BFBF",
+  buttonpink: "#FEB5DB",
+  buttonstrongpink: "#FF58A4",
+  blueGradient: "#7086E3",
+  purpleGradient: "#9072E5",
+  pinkGradient: "#FF6B86",
+  orangeGradient: "#FFB03A",
+  strongpinkGradient: "#FF58A4",
 };

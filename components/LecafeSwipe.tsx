@@ -1,18 +1,27 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { View, Text, Button, Pressable } from 'react-native'
 import SwipeableCard from './SwipeableCard'
-import { UserInterface } from '@/presentation/interfaces'
+import { LecafeSwipeProps, UserInterface } from '@/presentation/interfaces'
 import { UserLists } from '@/presentation'
 
-const LecafeSwipe = ({ friendshipList, relationshipList, datesList }: {
-  friendshipList: UserInterface[]
-  relationshipList: UserInterface[]
-  datesList: UserInterface[];
 
-}) => {
+const LecafeSwipe = ({
+  friendshipList,
+  relationshipList,
+  datesList,
+  selectedList,
+  setSelectedList,
+}: LecafeSwipeProps) => {
   const [cards, setCards] = useState<UserInterface[]>(friendshipList)
-  const [selectedList, setSelectedList] = useState<string>(UserLists.FRIENDSHIP);
+
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [superLikeSelected, setSuperLikeSelected] = useState<{
+    selected: boolean,
+    selectedId: number
+  }>({
+    selected: false,
+    selectedId: 0
+  });
 
   useEffect(() => {
 
@@ -34,10 +43,19 @@ const LecafeSwipe = ({ friendshipList, relationshipList, datesList }: {
 
   const handleSelectList = (selected: string) => {
     setSelectedList(selected)
+
   }
 
   const handleSwipe = useCallback(
-    (swipedCardId: number, direction: 'left' | 'right') => {
+    (swipedCardId: number, direction: 'left' | 'right' | 'superlike') => {
+
+      if (direction == 'superlike') {
+        setSuperLikeSelected({
+          selected: true,
+          selectedId: swipedCardId
+        })
+      }
+
       console.log(`Card ID ${swipedCardId} swiped ${direction}`)
       setCurrentIndex((prevIndex) => prevIndex + 1)
     },
@@ -51,6 +69,11 @@ const LecafeSwipe = ({ friendshipList, relationshipList, datesList }: {
 
   const handleSwipeRight = useCallback(
     (cardId: number) => handleSwipe(cardId, 'right'),
+    [handleSwipe]
+  )
+
+  const handleSuperLike = useCallback(
+    (cardId: number) => handleSwipe(cardId, 'superlike'),
     [handleSwipe]
   )
 
@@ -68,19 +91,27 @@ const LecafeSwipe = ({ friendshipList, relationshipList, datesList }: {
               <SwipeableCard
                 key={card.id}
                 card={card}
+                onSuperLike={handleSuperLike}
                 onSwipeLeft={handleSwipeLeft}
                 onSwipeRight={handleSwipeRight}
                 index={index}
                 totalCards={cardsToRender.length}
+                superLikeSelected={superLikeSelected}
+                handleSelectList={handleSelectList}
+                selectedList={selectedList}
               />
             )
           })
         ) : (
           <View className="flex-1 items-center justify-center">
-            <Text className=" font-mavenpro-bold  text-md text-textblack">No hay más opciones.</Text>
+              <Text className=" font-mavenpro-bold  text-md text-textwhite">No hay más opciones.</Text>
 
-              <Pressable onPress={() => { setCards(relationshipList); setCurrentIndex(0) }}>
-              <Text className=" font-quicksand-bold text-sm text-textblack">REINICIAR</Text>
+              <Pressable onPress={() => {
+                setCards(friendshipList)
+                setCurrentIndex(0)
+                setSelectedList(UserLists.FRIENDSHIP)
+              }}>
+                <Text className=" font-quicksand-bold text-sm text-textwhite">REINICIAR</Text>
             </Pressable>
           </View>
         )}

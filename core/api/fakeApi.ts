@@ -14,7 +14,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445024/modelo2_mui7xh.jpg?_s=public-apps",
-    lists: ["Friendship", "Relationship"],
+    lists: ["Friendship"],
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ const fakeApiJSON = [
     match: true,
     urlImg:
       "https://res.cloudinary.com/df5faxxou/image/upload/fl_preserve_transparency/v1745445023/modelo4_woi1kw.jpg?_s=public-apps",
-    lists: ["Dates", "Relationship"],
+    lists: ["Dates"],
   },
   {
     id: 3,
