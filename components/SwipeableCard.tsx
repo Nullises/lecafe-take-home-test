@@ -199,16 +199,16 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
             superLikeIndicatorScale.value = 0.8
 
             overlayOpacity.value = interpolate(
-                Math.abs(translateX.value), // Usar valor absoluto para que la opacidad suba a ambos lados
-                [0, SWIPE_THRESHOLD], // Opacidad 0 al centro, MAX_OVERLAY_OPACITY al umbral
+                Math.abs(translateX.value),
+                [0, SWIPE_THRESHOLD], 
                 [0, MAX_OVERLAY_OPACITY],
                 Extrapolate.CLAMP
             )
-            // Interpolamos el color basado en la posición horizontal
+
             overlayColor.value = interpolateColor(
                 translateX.value,
-                [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD], // Entradas: umbral izq, centro, umbral der
-                [NOPE_OVERLAY_COLOR, NOPE_OVERLAY_COLOR, LIKE_OVERLAY_COLOR] // Salidas: Gris, Gris (en el centro), Rosa
+                [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD],
+                [NOPE_OVERLAY_COLOR, NOPE_OVERLAY_COLOR, LIKE_OVERLAY_COLOR] 
             );
         },
         onEnd: (event) => {
@@ -271,11 +271,10 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
     const overlayStyle = useAnimatedStyle(() => {
         return {
-            backgroundColor: overlayColor.value, // Color animado
-            opacity: overlayOpacity.value, // Opacidad animada
-            // El posicionamiento se maneja con clases Nativewind
-            position: 'absolute', // Necesario para que las clases top/left/etc funcionen correctamente
-            top: 0, left: 0, right: 0, bottom: 0, // Cubre toda la tarjeta
+            backgroundColor: overlayColor.value,
+            opacity: overlayOpacity.value,
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
         }
     });
 
@@ -516,7 +515,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
                 <Animated.View
                     style={[overlayStyle]}
-                    className="absolute top-0 left-0 right-0 bottom-0" // Repetido para claridad, style tiene prioridad
+                    className="absolute top-0 left-0 right-0 bottom-0"
                 />
 
                 <Animated.View
