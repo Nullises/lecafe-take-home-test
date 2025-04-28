@@ -30,9 +30,7 @@ import BigXMark from '@/assets/icons/BigXMark'
 import BigCheck from '@/assets/icons/BigCheck'
 import { Colors } from '@/constants/Colors'
 const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
-const NOPE_OVERLAY_COLOR = Colors.grayOverlay 
-
-// Opacidad máxima deseada para el overlay
+const NOPE_OVERLAY_COLOR = Colors.grayOverlay
 const MAX_OVERLAY_OPACITY = 0.4;
 
 
