@@ -20,6 +20,6 @@ https://docs.expo.dev/get-started/set-up-your-environment/
 If you want see the app in a physical device:
 
 1. Install Expo Go through App Store (iOS) or Google Play Store (Android)
-2. Run every step from dev mode, except the last one
+2. Follow every step from Dev mode, except the last one
 3. Scan QR Code to see the App in physical device
 
