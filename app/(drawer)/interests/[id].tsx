@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from 'react-native'
+import { SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Redirect, useLocalSearchParams } from 'expo-router'
 import useUsers from '@/presentation/hooks/useUsers'
@@ -18,7 +18,10 @@ const Interests = () => {
     })
 
     useEffect(() => {
-        handleColorGradientSchema(name, setColorGradientSchema)
+        if (name) {
+            handleColorGradientSchema(name.toString(), setColorGradientSchema)
+        }
+
     }, [name])
 
     const matchUser = users.find((user: UserInterface) => user.id == Number(id))

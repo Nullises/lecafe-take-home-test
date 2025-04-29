@@ -39,7 +39,7 @@ const Match = ({
                         <View className='flex justify-center mb-8'>
                             <TextInput
                                 value={message}
-                                onChange={(e) => {
+                                onChange={(e: any) => {
                                     setMessage(e?.target?.value)
                                 }}
                                 style={{

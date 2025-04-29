@@ -8,13 +8,13 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import CustomHeader from '@/components/CustomHeader'
 import useOpenDrawer from '@/presentation/hooks/useOpenDrawer'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Colors } from '@/constants/Colors'
 import { handleColorGradientSchema } from '@/presentation/utils/handleColorSchema'
+import { useLocalSearchParams } from 'expo-router'
 
 
 
 const DashboardScreen = () => {
-
+    const { name, cardId } = useLocalSearchParams()
     const { users } = useUsers()
     const { isDrawerOpen } = useOpenDrawer();
     const [selectedList, setSelectedList] = useState<string>(UserLists.FRIENDSHIP)
@@ -22,7 +22,17 @@ const DashboardScreen = () => {
         initial: "",
         final: ""
     })
+    const [selectedByInterestsScreen, setSelectedByInterestsScreen] = useState<string | undefined>("")
+    const [selectedByInterestsCardId, setSelectedByInterestsCardId] = useState<number | undefined>(0) 
 
+    useEffect(() => {
+        if (name) {
+            setSelectedByInterestsScreen(name.toString())
+        }
+        if (cardId) {
+            setSelectedByInterestsCardId(Number(cardId))
+        }
+    }, [name, cardId])
 
     const { friendshipList, relationshipList, datesList } = users.reduce((acc, person: UserInterface) => {
 
@@ -67,6 +77,10 @@ const DashboardScreen = () => {
                     friendshipList={friendshipList}
                     relationshipList={relationshipList}
                     datesList={datesList}
+                    setSelectedByInterestsScreen={setSelectedByInterestsScreen}
+                    selectedByInterestsScreen={selectedByInterestsScreen}
+                    setSelectedByInterestsCardId={setSelectedByInterestsCardId}
+                    selectedByInterestsCardId={selectedByInterestsCardId}
                 />
             </View>
         </SafeAreaView>)
@@ -93,7 +107,12 @@ const DashboardScreen = () => {
                             selectedList={selectedList}
                             friendshipList={friendshipList}
                             relationshipList={relationshipList}
-                            datesList={datesList} />
+                            datesList={datesList}
+                            setSelectedByInterestsScreen={setSelectedByInterestsScreen}
+                            selectedByInterestsScreen={selectedByInterestsScreen}
+                            setSelectedByInterestsCardId={setSelectedByInterestsCardId}
+                            selectedByInterestsCardId={selectedByInterestsCardId}
+                        />
                     </View>
                 </SafeAreaView>
             </LinearGradient>

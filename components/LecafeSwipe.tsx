@@ -11,6 +11,10 @@ const LecafeSwipe = ({
   datesList,
   selectedList,
   setSelectedList,
+  selectedByInterestsScreen,
+  setSelectedByInterestsCardId,
+  selectedByInterestsCardId,
+  setSelectedByInterestsScreen
 }: LecafeSwipeProps) => {
   const [cards, setCards] = useState<UserInterface[]>(friendshipList)
 
@@ -88,6 +92,10 @@ const LecafeSwipe = ({
                 optionSelected={optionSelected}
                 handleSelectList={handleSelectList}
                 selectedList={selectedList}
+                setSelectedByInterestsScreen={setSelectedByInterestsScreen}
+                selectedByInterestsScreen={selectedByInterestsScreen}
+                setSelectedByInterestsCardId={setSelectedByInterestsCardId}
+                selectedByInterestsCardId={selectedByInterestsCardId}
               />
             )
           })

@@ -1,10 +1,9 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { View, Text, Dimensions, Pressable } from 'react-native'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import Animated, {
     useSharedValue,
-    useAnimatedStyle,
     useAnimatedGestureHandler,
     withSpring,
     runOnJS,
@@ -16,21 +15,15 @@ import Animated, {
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { SwipeableCardProps } from '@/presentation/interfaces'
-import CustomButton from './common/CustomButton'
-import Dislike from '@/assets/icons/Dislike'
-import Check from '@/assets/icons/Check'
-import CustomLikeButton from './CustomLikeButton'
-import CustomSetListButton from './CustomSetListButton'
-import Friendship from '@/assets/icons/Friendship'
-import { UserLists } from '@/presentation'
-import Dates from '@/assets/icons/Dates'
-import Relationship from '@/assets/icons/Relationship'
 import SuperLike from '@/assets/icons/SuperLike'
 import BigXMark from '@/assets/icons/BigXMark'
 import BigCheck from '@/assets/icons/BigCheck'
 import { Colors } from '@/constants/Colors'
-import { Redirect, router, useNavigation } from 'expo-router'
+import { router } from 'expo-router'
 import Interests from '@/assets/icons/Interests'
+import CustomActionsButtonGroup from './common/CustomActionsButtonGroup'
+import CustomActionsSetListButtonGroup from './common/CustomActionsSetListButtonGroup'
+import { getSwipeableCardStyles } from '../presentation/utils/getSwipeableCardStyles'
 const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
 const NOPE_OVERLAY_COLOR = Colors.grayOverlay
 const MAX_OVERLAY_OPACITY = 0.4;
@@ -46,10 +39,13 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     onSuperLike,
     index = 0,
     selectedList,
-    handleSelectList
+    handleSelectList,
+    selectedByInterestsScreen,
+    setSelectedByInterestsScreen,
+    selectedByInterestsCardId,
+    setSelectedByInterestsCardId
 }) => {
 
-    const navigate = useNavigation();
 
     const translateX = useSharedValue(0)
     const translateY = useSharedValue(0)
@@ -63,18 +59,46 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     const overlayOpacity = useSharedValue(0)
     const overlayColor = useSharedValue(NOPE_OVERLAY_COLOR);
 
+    const swipeableCardStyles = getSwipeableCardStyles({
+        translateX,
+        translateY,
+        nopeIndicatorOpacity,
+        likeIndicatorOpacity,
+        superLikeIndicatorOpacity,
+        nopeLikeIndicatorScale,
+        superLikeIndicatorScale,
+        overlayOpacity,
+        overlayColor,
+        index,
+        screenWidth,
+    })
+
+
+    useEffect(() => {
+        if ((selectedByInterestsScreen == 'left' || selectedByInterestsScreen == 'right') && selectedByInterestsCardId! > 0 && selectedByInterestsScreen && selectedByInterestsCardId == card.id) {
+            triggerIndicatorAndSwipeAnimation(selectedByInterestsScreen, selectedByInterestsCardId!)
+            setSelectedByInterestsCardId(0)
+            setSelectedByInterestsScreen!("")
+        }
+
+        if (selectedByInterestsScreen == 'center' && selectedByInterestsCardId! > 0 && selectedByInterestsScreen && selectedByInterestsScreen && selectedByInterestsCardId == card.id) {
+            triggerSuperLikeAnimation(selectedByInterestsCardId!)
+            setSelectedByInterestsCardId(0)
+            setSelectedByInterestsScreen!("")
+        }
+    }, [selectedByInterestsScreen, selectedByInterestsCardId, card.id])
+
 
 
     const handleSwipeComplete = useCallback(
-        (direction: 'left' | 'right' | 'superlike') => {
+        (direction: 'left' | 'right' | 'superlike', cardId: number) => {
             if (direction === 'left') {
-                onSwipeLeft(card.id)
+                onSwipeLeft(cardId)
             } else if (direction === 'right') {
-                onSwipeRight(card.id)
+                onSwipeRight(cardId)
             } else if (direction === 'superlike') {
-                onSuperLike(card.id)
+                onSuperLike(cardId)
                 if (card.match) {
-                    console.log("match")
                     router.push({
                         pathname: '/(drawer)/dashboard/[id]',
                         params: { id: card.id, name: selectedList }
@@ -87,7 +111,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     )
 
     const triggerIndicatorAndSwipeAnimation = useCallback(
-        (direction: 'left' | 'right') => {
+        (direction: 'left' | 'right', cardId: number) => {
             const finalPositionX = direction === 'left' ? -screenWidth * 1.5 : screenWidth * 1.5
 
 
@@ -120,7 +144,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     translateX.value = withSpring(finalPositionX, { duration: 200 }, (isSwipeFinished) => {
                         if (isSwipeFinished) {
 
-                            runOnJS(handleSwipeComplete)(direction)
+                            runOnJS(handleSwipeComplete)(direction, cardId)
                         }
                     })
                 }
@@ -144,7 +168,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
     )
 
 
-    const triggerSuperLikeAnimation = useCallback(() => {
+    const triggerSuperLikeAnimation = useCallback((cardId: number) => {
         nopeIndicatorOpacity.value = 0
         likeIndicatorOpacity.value = 0
         nopeLikeIndicatorScale.value = 0.8
@@ -163,7 +187,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     }
                 });
 
-                runOnJS(handleSwipeComplete)('superlike')
+                runOnJS(handleSwipeComplete)('superlike', cardId)
             }
         })
 
@@ -228,7 +252,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
             if (event.translationX > SWIPE_THRESHOLD) {
                 translateX.value = withSpring(screenWidth * 1.5, { duration: 200 }, (isFinished) => {
-                    if (isFinished) { runOnJS(handleSwipeComplete)('right') }
+                    if (isFinished) { runOnJS(handleSwipeComplete)('right', card.id) }
                 })
                 nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
                 likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
@@ -237,7 +261,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
             } else if (event.translationX < -SWIPE_THRESHOLD) {
                 translateX.value = withSpring(-screenWidth * 1.5, { duration: 200 }, (isFinished) => {
-                    if (isFinished) { runOnJS(handleSwipeComplete)('left') }
+                    if (isFinished) { runOnJS(handleSwipeComplete)('left', card.id) }
                 })
                 nopeIndicatorOpacity.value = withTiming(0, { duration: 100 })
                 likeIndicatorOpacity.value = withTiming(0, { duration: 100 })
@@ -256,95 +280,14 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         },
     })
 
-    const animatedStyle = useAnimatedStyle(() => {
-        const rotateZ = interpolate(
-            translateX.value,
-            [-screenWidth / 2, 0, screenWidth / 2],
-            [-15, 0, 15],
-            'clamp'
-        )
 
-        const scale = interpolate(index, [0, 1, 2], [1, 0.95, 0.9], 'clamp')
-        const translateYStack = interpolate(index, [0, 1, 2], [0, 10, 20], 'clamp')
-
-        return {
-            transform: [
-                { translateX: translateX.value },
-                { translateY: translateY.value + translateYStack },
-                { rotateZ: `${rotateZ}deg` },
-            ],
-            opacity: interpolate(
-                translateX.value,
-                [-screenWidth / 2, 0, screenWidth / 2],
-                [0.7, 1, 0.7],
-                'clamp'
-            ),
-        }
-    })
-
-    const overlayStyle = useAnimatedStyle(() => {
-        return {
-            backgroundColor: overlayColor.value,
-            opacity: overlayOpacity.value,
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-        }
-    });
-
-    const nopeIndicatorStyle = useAnimatedStyle(() => {
-        return {
-            opacity: nopeIndicatorOpacity.value,
-            transform: [
-                { scale: nopeLikeIndicatorScale.value },
-                { rotate: '-15deg' },
-            ],
-
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            marginLeft: -90,
-            marginTop: -40,
-        }
-    })
-
-
-    const likeIndicatorStyle = useAnimatedStyle(() => {
-        return {
-            opacity: likeIndicatorOpacity.value,
-            transform: [
-                { scale: nopeLikeIndicatorScale.value },
-                { rotate: '15deg' }
-            ],
-
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            marginLeft: -90,
-            marginTop: -40,
-        }
-    })
-
-
-    const superLikeIndicatorStyle = useAnimatedStyle(() => {
-        return {
-            opacity: superLikeIndicatorOpacity.value,
-            transform: [
-                { scale: superLikeIndicatorScale.value },
-            ],
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            marginLeft: -90,
-            marginTop: -40,
-        }
-    })
 
 
     return (
 
         <PanGestureHandler onGestureEvent={gestureHandler}>
             <Animated.View
-                style={[animatedStyle]}
+                style={[swipeableCardStyles.animatedStyle]}
                 className={clsx(
                     'absolute',
                     'w-[318px]',
@@ -367,12 +310,12 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 />
 
                 <Animated.View
-                    style={[overlayStyle]}
+                    style={[swipeableCardStyles.overlayStyle]}
                     className="absolute top-0 left-0 right-0 bottom-0"
                 />
 
                 <Animated.View
-                    style={[nopeIndicatorStyle]}
+                    style={[swipeableCardStyles.nopeIndicatorStyle]}
                     className={clsx(
                         'rounded-xl', 'p-4',
 
@@ -381,7 +324,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     <BigXMark />
                 </Animated.View>
                 <Animated.View
-                    style={[likeIndicatorStyle]}
+                    style={[swipeableCardStyles.likeIndicatorStyle]}
                     className={clsx(
                         'rounded-xl', 'p-4',
                     )}
@@ -390,7 +333,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 </Animated.View>
 
                 <Animated.View
-                    style={[superLikeIndicatorStyle]}
+                    style={[swipeableCardStyles.superLikeIndicatorStyle]}
                     className={clsx(
                         'rounded-xl', 'p-4',
                     )}
@@ -399,29 +342,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 </Animated.View>
 
                 <View className="absolute top-0 left-0 right-0 p-4">
-                    <View className='flex-1 flex-row items-center justify-center gap-2'>
-
-
-                        <View className='flex-1 items-center justify-center flex-col'>
-                            <CustomSetListButton selected={selectedList == UserLists.FRIENDSHIP} onPress={() => handleSelectList(UserLists.FRIENDSHIP)} >
-                                <Friendship />
-                            </CustomSetListButton >
-                            <Text className='font-mavenpro-bold text-smbold text-white'>Amistad</Text>
-                        </View>
-
-                        <View className='flex-1 items-center justify-center flex-col'>
-                            <CustomSetListButton selected={selectedList == UserLists.DATES} onPress={() => handleSelectList(UserLists.DATES)} >
-                                <Dates />
-                            </CustomSetListButton >
-                            <Text className='font-mavenpro-bold text-smbold text-white'>Citas</Text>
-                        </View>
-                        <View className='flex-1 items-center justify-center flex-col'>
-                            <CustomSetListButton selected={selectedList == UserLists.RELATIONSHIP} onPress={() => handleSelectList(UserLists.RELATIONSHIP)} >
-                                <Relationship />
-                            </CustomSetListButton >
-                            <Text className='font-mavenpro-bold text-smbold text-white'>Relación</Text>
-                        </View>
-                    </View>
+                    <CustomActionsSetListButtonGroup selectedList={selectedList} handleSelectList={handleSelectList} />
                 </View>
 
 
@@ -439,22 +360,15 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                     </View>
 
                     <Text className="font-mavenpro-regular text-textwhite text-sm mb-8">{card.isNear && card.nearKm && card.nearKm > 0 && `${card.nearKm} km,`} {card.city && `${card.city}`} {card.country && `, ${card.country}`}</Text>
-                    <View className='flex-1 flex-row items-center justify-center gap-4'>
-
-                        <CustomButton onPress={() => triggerIndicatorAndSwipeAnimation("left")} btnColor={'bg-buttonlightpink'} btnColorActive={'active:bg-buttonstrongpink'}>
-                            <Dislike />
-                        </CustomButton>
-                        <CustomLikeButton onPress={triggerSuperLikeAnimation} />
-                        <CustomButton onPress={() => triggerIndicatorAndSwipeAnimation("right")} btnColor={'bg-buttonpink'} btnColorActive={'active:bg-buttonstrongpink'}>
-                            <Check />
-                        </CustomButton>
-                    </View>
-
+                    <CustomActionsButtonGroup
+                        actionLeft={() => triggerIndicatorAndSwipeAnimation("left", card.id)}
+                        actionCenter={() => triggerSuperLikeAnimation(card.id)}
+                        actionRight={() => triggerIndicatorAndSwipeAnimation("right", card.id)}
+                    />
                 </View>
             </Animated.View>
         </PanGestureHandler>
     )
-
 }
 
 export default SwipeableCard 

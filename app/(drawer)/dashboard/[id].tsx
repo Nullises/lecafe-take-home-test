@@ -16,9 +16,8 @@ const MatchUser = () => {
     }
 
 
-
     return (
-        <Match card={matchUser!} optionSelected={name!} />
+        <Match card={matchUser!} optionSelected={name && name.toString()} />
     )
 }
 

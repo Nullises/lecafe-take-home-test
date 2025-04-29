@@ -1,3 +1,4 @@
+import { SharedValue } from "react-native-reanimated";
 import { UserInterface } from "..";
 
 export interface SwipeableCardProps {
@@ -10,6 +11,10 @@ export interface SwipeableCardProps {
   optionSelected: string;
   selectedList: string;
   handleSelectList: (selectedList: string) => void;
+  selectedByInterestsScreen?: string;
+  setSelectedByInterestsScreen?: (selectedByInterestsScreen: string) => void;
+  selectedByInterestsCardId?: number;
+  setSelectedByInterestsCardId: (selectedByInterestsCardId: number) => void;
 }
 
 export interface SwipeableCardHandle {
@@ -24,4 +29,22 @@ export interface LecafeSwipeProps {
   datesList: UserInterface[];
   selectedList: string;
   setSelectedList: (selectedList: string) => void;
+  selectedByInterestsScreen?: string;
+  setSelectedByInterestsScreen?: (selectedByInterestsScreen: string) => void;
+  selectedByInterestsCardId?: number;
+  setSelectedByInterestsCardId: (selectedByInterestsCardId: number) => void;
+}
+
+export interface GetSwipeCardStyles {
+  translateX: SharedValue<number>;
+  translateY: SharedValue<number>;
+  nopeIndicatorOpacity: SharedValue<number>;
+  likeIndicatorOpacity: SharedValue<number>;
+  superLikeIndicatorOpacity: SharedValue<number>;
+  nopeLikeIndicatorScale: SharedValue<number>;
+  superLikeIndicatorScale: SharedValue<number>;
+  overlayOpacity: SharedValue<number>;
+  overlayColor: SharedValue<string>;
+  index: number;
+  screenWidth: number;
 }
