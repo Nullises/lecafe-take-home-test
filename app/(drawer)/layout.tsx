@@ -165,6 +165,13 @@ const DrawerLayout = () => {
                     title: "",
                 }}
             />
+            <Drawer.Screen
+                name="(drawer)/interests/[id]"
+                options={{
+                    drawerLabel: "",
+                    title: "",
+                }}
+            />
         </Drawer>
     )
 }

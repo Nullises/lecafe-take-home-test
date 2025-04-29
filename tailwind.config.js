@@ -25,6 +25,11 @@ module.exports = {
         buttonwhite: "#FFFFFF",
         buttonpink: "#FEB5DB",
         drawerpink: "#FFB1C7",
+        blueGradient: "#7086E3",
+        purpleGradient: "#9072E5",
+        pinkGradient: "#FF6B86",
+        orangeGradient: "#FFB03A",
+        strongpinkGradient: "#FF58A4",
         blue: {
           50: "#7086E3",
         },

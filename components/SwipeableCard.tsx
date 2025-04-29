@@ -16,7 +16,7 @@ import Animated, {
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { SwipeableCardProps } from '@/presentation/interfaces'
-import CustomButton from './CustomButton'
+import CustomButton from './common/CustomButton'
 import Dislike from '@/assets/icons/Dislike'
 import Check from '@/assets/icons/Check'
 import CustomLikeButton from './CustomLikeButton'
@@ -29,7 +29,6 @@ import SuperLike from '@/assets/icons/SuperLike'
 import BigXMark from '@/assets/icons/BigXMark'
 import BigCheck from '@/assets/icons/BigCheck'
 import { Colors } from '@/constants/Colors'
-import Match from './Match'
 import { Redirect, router, useNavigation } from 'expo-router'
 import Interests from '@/assets/icons/Interests'
 const LIKE_OVERLAY_COLOR = Colors.pinkOverlay
@@ -429,7 +428,12 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 <View className="absolute bottom-0 left-0 right-0 p-4">
                     <View className='flex flex-row justify-between'>
                         <Text className="font-quicksand-bold text-textwhite text-md">{card.name} {card.surname}, {card.age}</Text>
-                        <Pressable className='bg-buttonstrongpink active:opacity-80 rounded-full w-[32px] h-[32px] flex justify-center items-center'>
+                        <Pressable onPress={() =>
+                            router.push({
+                                pathname: '/(drawer)/interests/[id]',
+                                params: { id: card.id, name: selectedList }
+                            })
+                        } className='bg-buttonstrongpink active:opacity-80 rounded-full w-[32px] h-[32px] flex justify-center items-center'>
                             <Interests />
                         </Pressable>
                     </View>

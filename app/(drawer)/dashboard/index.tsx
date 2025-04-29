@@ -9,6 +9,7 @@ import CustomHeader from '@/components/CustomHeader'
 import useOpenDrawer from '@/presentation/hooks/useOpenDrawer'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors } from '@/constants/Colors'
+import { handleColorGradientSchema } from '@/presentation/utils/handleColorSchema'
 
 
 
@@ -43,31 +44,10 @@ const DashboardScreen = () => {
         datesList: []
     } as SplitListsAccumulator)
 
-    const handleColorGradientSchema = (selected: string) => {
-        if (selected == UserLists.FRIENDSHIP) {
-            setColorGradientSchema({
-                initial: Colors.blueGradient,
-                final: Colors.purpleGradient
-            })
-        }
 
-        if (selected == UserLists.DATES) {
-            setColorGradientSchema({
-                initial: Colors.pinkGradient,
-                final: Colors.orangeGradient
-            })
-        }
-
-        if (selected == UserLists.RELATIONSHIP) {
-            setColorGradientSchema({
-                initial: Colors.strongpinkGradient,
-                final: Colors.pinkGradient
-            })
-        }
-    }
 
     useEffect(() => {
-        handleColorGradientSchema(selectedList)
+        handleColorGradientSchema(selectedList, setColorGradientSchema)
     }, [selectedList])
 
 

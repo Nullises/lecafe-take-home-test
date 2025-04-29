@@ -20,7 +20,7 @@ const Match = ({
 
     return (
         <View style={{ flex: 1 }}>
-            <ImageBackground source={card.urlImg}
+            <ImageBackground source={card?.urlImg}
                 style={absoluteFill}
                 contentFit="cover"
                 transition={1000}
